@@ -60,7 +60,7 @@ def show(conn):
             )
             conn.commit()
             # ... 省略部分代码 ...
-                st.success("模拟订单已创建")
+            st.success("模拟订单已创建")
                 
                 # 更新 order_id 以便下次创建新订单
                 st.session_state.temp_order_id = f"order_{int(datetime.utcnow().timestamp())}"
@@ -106,4 +106,5 @@ def show(conn):
 
 conn = sqlite3.connect("data.db", check_same_thread=False) # 建议增加 check_same_thread=False
 show(conn)
+
 
