@@ -13,11 +13,41 @@ def show(conn):
         courier_id = st.text_input("配送员ID", value="courier1")
         cabinet_id = st.text_input("柜子编号", value="3.2")
         if st.button("生成入柜订单"):
-            now = datetime.utcnow().isoformat()
-            conn.execute("""INSERT INTO orders (order_id,user_id,courier_id,cabinet_id,in_cabinet_time,out_cabinet_time,status,risk,distance_actual,distance_expected))
-                            VALUES (?,?,?,?,?,?,?,?,?,?)""",
-                         (order_id,user_id,courier_id,3.5,now,now,now,"in",0.0,cabinet_id,2.5))
-            conn.commit()
+    now = datetime.utcnow().isoformat()
+
+    conn.execute(
+        """
+        INSERT INTO orders (
+            order_id,
+            user_id,
+            courier_id,
+            cabinet_id,
+            in_cabinet_time,
+            out_cabinet_time,
+            status,
+            risk_score,
+            distance_expected,
+            distance_actual
+        )
+        VALUES (?,?,?,?,?,?,?,?,?,?)
+        """,
+        (
+            order_id,
+            user_id,
+            courier_id,
+            cabinet_id,
+            now,
+            None,          # 还未出柜
+            "in",          # 状态
+            0.0,           # 初始风险分
+            2.5,           # 期望距离
+            0.0            # 实际距离
+        )
+    )
+    conn.commit()
+
+    st.success("模拟订单已创建")
+
 
 
             st.success("模拟订单已创建")
@@ -55,3 +85,4 @@ def show(conn):
             st.rerun()
 conn = sqlite3.connect("data.db")
 show(conn)
+
