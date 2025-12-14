@@ -50,7 +50,7 @@ def show(conn):
 
 
 
-            st.success("模拟订单已创建")
+    
     st.write("---")
     rows = query(conn, "SELECT * FROM orders ORDER BY id DESC", fetch=True)
     if not rows:
@@ -85,5 +85,6 @@ def show(conn):
             st.rerun()
 conn = sqlite3.connect("data.db")
 show(conn)
+
 
 
