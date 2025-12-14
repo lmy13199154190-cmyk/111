@@ -63,10 +63,10 @@ def show(conn):
             st.success("模拟订单已创建")
                 
                 # 更新 order_id 以便下次创建新订单
-                st.session_state.temp_order_id = f"order_{int(datetime.utcnow().timestamp())}"
-                st.rerun() # 重新运行以刷新界面和订单列表
+            st.session_state.temp_order_id = f"order_{int(datetime.utcnow().timestamp())}"
+            st.rerun() # 重新运行以刷新界面和订单列表
 
-            except sqlite3.IntegrityError:
+        except sqlite3.IntegrityError:
                 st.error(f"订单ID {order_id} 已存在，请修改后再试。")
 
     
@@ -106,5 +106,6 @@ def show(conn):
 
 conn = sqlite3.connect("data.db", check_same_thread=False) # 建议增加 check_same_thread=False
 show(conn)
+
 
 
