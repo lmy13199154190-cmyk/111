@@ -1,4 +1,5 @@
-# pages/orders.py
+# pages/orders.py 修正后
+
 import streamlit as st
 from utils.db import query
 from utils.risk import compute_risk
@@ -7,48 +8,63 @@ import sqlite3
 
 def show(conn):
     st.title("订单管理")
+    
+    # 使用会话状态存储 order_id，防止输入框每次刷新都变化
+    if 'temp_order_id' not in st.session_state:
+        st.session_state.temp_order_id = f"order_{int(datetime.utcnow().timestamp())}"
+
     with st.expander("新增模拟订单（用于演示）"):
-        order_id = st.text_input("Order ID", value=f"order_{int(datetime.utcnow().timestamp())}")
+        # 移除了 order_id 的自动更新逻辑，改用 session_state
+        order_id = st.text_input("Order ID", value=st.session_state.temp_order_id)
         user_id = st.text_input("用户ID", value="user1")
         courier_id = st.text_input("配送员ID", value="courier1")
         cabinet_id = st.text_input("柜子编号", value="3.2")
+        
+        # 关键修改：将数据库操作移入按钮的 if 块内
         if st.button("生成入柜订单"):
+            # 1. 确保 now 被赋值
             now = datetime.utcnow().isoformat()
+            
+            # 2. 数据库插入操作
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO orders (
+                        order_id,
+                        user_id,
+                        courier_id,
+                        cabinet_id,
+                        in_cabinet_time,
+                        out_cabinet_time,
+                        status,
+                        risk_score,
+                        distance_expected,
+                        distance_actual
+                    )
+                    VALUES (?,?,?,?,?,?,?,?,?,?)
+                    """,
+                    (
+                        order_id,
+                        user_id,
+                        courier_id,
+                        cabinet_id,
+                        now,
+                        None,       # 还未出柜
+                        "in",       # 状态
+                        0.0,        # 初始风险分
+                        2.5,        # 期望距离
+                        0.0         # 实际距离
+                    )
+                )
+                conn.commit()
+                st.success("模拟订单已创建")
+                
+                # 更新 order_id 以便下次创建新订单
+                st.session_state.temp_order_id = f"order_{int(datetime.utcnow().timestamp())}"
+                st.rerun() # 重新运行以刷新界面和订单列表
 
-    conn.execute(
-        """
-        INSERT INTO orders (
-            order_id,
-            user_id,
-            courier_id,
-            cabinet_id,
-            in_cabinet_time,
-            out_cabinet_time,
-            status,
-            risk_score,
-            distance_expected,
-            distance_actual
-        )
-        VALUES (?,?,?,?,?,?,?,?,?,?)
-        """,
-        (
-            order_id,
-            user_id,
-            courier_id,
-            cabinet_id,
-            now,
-            None,          # 还未出柜
-            "in",          # 状态
-            0.0,           # 初始风险分
-            2.5,           # 期望距离
-            0.0            # 实际距离
-        )
-    )
-    conn.commit()
-
-    st.success("模拟订单已创建")
-
-
+            except sqlite3.IntegrityError:
+                st.error(f"订单ID {order_id} 已存在，请修改后再试。")
 
     
     st.write("---")
@@ -56,6 +72,7 @@ def show(conn):
     if not rows:
         st.info("暂无订单")
         return
+        
     for r in rows[:50]:
         st.write({
             "id": r[0],"order_id":r[1],"user_id":r[2],"courier_id":r[3],
@@ -83,8 +100,6 @@ def show(conn):
             conn.commit()
             st.success(f"风险评分更新为 {score:.2f}")
             st.rerun()
-conn = sqlite3.connect("data.db")
+
+conn = sqlite3.connect("data.db", check_same_thread=False) # 建议增加 check_same_thread=False
 show(conn)
-
-
-
