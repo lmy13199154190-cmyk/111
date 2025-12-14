@@ -1,4 +1,4 @@
-# pages/orders.py 修正后
+
 
 import streamlit as st
 from utils.db import query
@@ -19,54 +19,49 @@ def show(conn):
         user_id = st.text_input("用户ID", value="user1")
         courier_id = st.text_input("配送员ID", value="courier1")
         cabinet_id = st.text_input("柜子编号", value="3.2")
-        
-        # 关键修改：将数据库操作移入按钮的 if 块内
-        # /pages/orders.py (修正后的 if 块)
-
 # ... 省略部分代码 ...
         if st.button("生成入柜订单"):
             now = datetime.utcnow().isoformat()
-            
-            # --- 【修正点 2】: 修正 SQL 语句和参数列表 ---
-            conn.execute(
-                """
-                INSERT INTO orders (
-                    order_id,
-                    user_id,
-                    courier_id,
-                    cabinet_id,
-                    in_cabinet_time,
-                    out_cabinet_time,
-                    status,
-                    risk_score,
-                    distance_expected,
-                    distance_actual
-                )
-                VALUES (?,?,?,?,?,?,?,?,?,?)
-                """,
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO orders (
+                        order_id,
+                        user_id,
+                        courier_id,
+                        cabinet_id,
+                        in_cabinet_time,
+                        out_cabinet_time,
+                        status,
+                        risk_score,
+                        distance_expected,
+                        distance_actual
+                    )
+                    VALUES (?,?,?,?,?,?,?,?,?,?)
+                    """,
                 # 必须严格按顺序提供 10 个值 (对应上面的 10 个字段)
-                (
-                    order_id,     # order_id
-                    user_id,      # user_id
-                    courier_id,   # courier_id
-                    cabinet_id,   # cabinet_id
-                    now,          # in_cabinet_time (使用 now)
-                    None,         # out_cabinet_time (使用 None)
-                    "in",         # status
-                    0.0,          # risk_score (初始为 0.0)
-                    2.5,          # distance_expected (使用 2.5)
-                    0.0           # distance_actual (使用 0.0)
+                    (
+                        order_id,     # order_id
+                        user_id,      # user_id
+                        courier_id,   # courier_id
+                        cabinet_id,   # cabinet_id
+                        now,          # in_cabinet_time (使用 now)
+                        None,         # out_cabinet_time (使用 None)
+                        "in",         # status
+                        0.0,          # risk_score (初始为 0.0)
+                        2.5,          # distance_expected (使用 2.5)
+                        0.0           # distance_actual (使用 0.0)
+                    )
                 )
-            )
-            conn.commit()
+                conn.commit()
             # ... 省略部分代码 ...
-            st.success("模拟订单已创建")
+                st.success("模拟订单已创建")
                 
                 # 更新 order_id 以便下次创建新订单
-            st.session_state.temp_order_id = f"order_{int(datetime.utcnow().timestamp())}"
-            st.rerun() # 重新运行以刷新界面和订单列表
+                st.session_state.temp_order_id = f"order_{int(datetime.utcnow().timestamp())}"
+                st.rerun() # 重新运行以刷新界面和订单列表
 
-        except sqlite3.IntegrityError:
+            except sqlite3.IntegrityError:
                 st.error(f"订单ID {order_id} 已存在，请修改后再试。")
 
     
@@ -106,6 +101,7 @@ def show(conn):
 
 conn = sqlite3.connect("data.db", check_same_thread=False) # 建议增加 check_same_thread=False
 show(conn)
+
 
 
 
