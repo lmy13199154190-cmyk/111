@@ -13,7 +13,7 @@ def show(conn):
         courier_id = st.text_input("配送员ID", value="courier1")
         cabinet_id = st.text_input("柜子编号", value="3.2")
         if st.button("生成入柜订单"):
-    now = datetime.utcnow().isoformat()
+            now = datetime.utcnow().isoformat()
 
     conn.execute(
         """
@@ -85,4 +85,5 @@ def show(conn):
             st.rerun()
 conn = sqlite3.connect("data.db")
 show(conn)
+
 
