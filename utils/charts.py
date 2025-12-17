@@ -30,7 +30,7 @@ def orders_df(rows):
     ]
     if not rows:
         return pd.Dataframe(columns = cols)
-    if rows and len(rows[0] !)= len(cols):
+    if rows and len(rows[0] )!= len(cols):
         print(f"Warning :Data rows have{len(rows[0])} columns,expected {len(cols)}")
     return pd.DataFrame(rows, columns=cols)
 
@@ -50,6 +50,7 @@ def plot_cabinet_heatmap(df):
     fig = px.bar(agg, x="cabinet_id", y="risk", title="按柜子汇总的风险得分")
 
     return fig
+
 
 
 
