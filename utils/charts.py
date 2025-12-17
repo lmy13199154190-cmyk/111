@@ -52,3 +52,4 @@ def plot_cabinet_heatmap(df):
     return fig
 
 
+
