@@ -99,8 +99,10 @@ def init_db():
 
 # --- 通用查询函数 ---
 def query(conn, sql, params=(), fetch=False):
+
     cur = conn.cursor()
     cur.execute(sql, params)
     conn.commit()
     if fetch:
         return cur.fetchall()
+
