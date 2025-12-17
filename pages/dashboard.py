@@ -15,7 +15,7 @@ def show(conn):
     st.subheader("关键指标")
     st.metric("订单总数", len(df))
     if "risk" in df.columns:
-        risk_count=len(df[df["risk"]>0.6)if not df.empty else 0
+        risk_count=len(df[df["risk"]>0.6])if not df.empty else 0
         st.metric("异常订单（risk>0.6）", risk_count)
     else:
         st.metric("异常订单（risk>0.6)",0)
@@ -35,3 +35,4 @@ def show(conn):
 conn=sqlite3.connect("data.db")
 
 show(conn)
+
