@@ -6,7 +6,7 @@ import sqlite3
 
 def show(conn):
     st.title("登录 AnPick")
-    username = st.text_input("用户名")
+    username = st.text_input("用户名",key="login_username")
     password = st.text_input("密码", type="password",key="login_password")
     if st.button("登录"):
         ok = login_user(conn, username, password)
@@ -21,3 +21,4 @@ def show(conn):
         st.rerun()
 conn = sqlite3.connect("data.db")
 show(conn)
+
